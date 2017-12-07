@@ -24,6 +24,7 @@ foreach ($relationships['database'] as $endpoint) {
     $container->setParameter('cluster_database_name', 'cluster');
 }
 
+// By default set env CUSTOM_CACHE_POOL=singleredis for env/generic.php to set pool
 if (isset($relationships['cache'])) {
     foreach ($relationships['cache'] as $endpoint) {
         if ($endpoint['scheme'] !== 'memcached') {
