@@ -14,5 +14,5 @@ rediscache:
 #            core1:
 #                conf_dir: !archive "solr/config/solr"
 #        endpoints:
-#            one:
+#            endpoint0:
 #                core: core1

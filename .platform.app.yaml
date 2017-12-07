@@ -20,6 +20,14 @@ build:
 relationships:
     database: "mysqldb:mysql"
     redis: "rediscache:redis"
+    #solr: "solr:endpoint0"
+
+
+variables:
+    php:
+        "display_errors": "Off"
+    env:
+        CUSTOM_CACHE_POOL: 'singleredis'
 
 # The configuration of app when it is exposed to the web.
 web:
@@ -64,6 +72,9 @@ hooks:
             php -d memory_limit=-1 app/console ezplatform:install --env=$SYMFONY_ENV $INSTALL_EZ_INSTALL_TYPE
             touch web/var/.platform.installed
         fi
+        # If this is not a "fast-deploy" then typically you would want to migrate your data as well here
+        #app/console --env=$SYMFONY_ENV doctrine:migrations:migrate --no-interaction --allow-no-migration
+        #app/console --env=$SYMFONY_ENV kaliop:migration:migrate --no-interaction --no-debug
 
 # The configuration of scheduled execution.
 # see http://symfony.com/doc/current/components/console/introduction.html
@@ -78,3 +89,7 @@ runtime:
         - imagick
         - redis
         - readline
+        - name: 'blackfire'
+          configuration:
+              server_id: 'xxxx-xxx-xxx-xxx-xxxx'
+              server_token: 'xxxx'
