@@ -34,8 +34,8 @@ if ($useDebugging) {
 
 $kernel = new AppKernel($environment, $useDebugging);
 
-// we don't want to use the classes cache if we are in a debug session
-if (!$useDebugging) {
+// we don't want to use the classes cache if we are in a debug session or if on PHP 7+ where it does not give benefit
+if (!$useDebugging && PHP_VERSION_ID < 70000) {
     $kernel->loadClassCache();
 }
 

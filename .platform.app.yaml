@@ -27,7 +27,10 @@ variables:
     php:
         "display_errors": "Off"
     env:
+        # Enable a redis pool. this will be used in app/config/env/genric.php, and params will be set in env/platformsh.php
         CUSTOM_CACHE_POOL: 'singleredis'
+        # Symfony cache is not meant to be shared in a cluster and recommendation is to rather use Fastly with platform.sh
+        SYMFONY_HTTP_CACHE: 0
 
 # The configuration of app when it is exposed to the web.
 web:
@@ -45,6 +48,9 @@ disk: 2048
 
 # The mounts that will be performed when the package is deployed.
 mounts:
+    # By default we try to avoid sharing cache folder as it introduces issues (the need to clear it on deploy, & performance)
+    # To accomplish this cache like Doctrine ORM cache needs to be stored into APC(u) instead of on disk (see config_prod.yml)
+    #"/app/cache": "shared:files/cache"
     "/app/logs": "shared:files/logs"
     "/web/var": "shared:files/files"
 
@@ -62,6 +68,7 @@ hooks:
         else
             composer install --no-dev --prefer-dist --no-progress --no-interaction --optimize-autoloader
         fi
+         app/console --env=$SYMFONY_ENV cache:warmup
     deploy: |
         set -e
         . ./.env
@@ -88,6 +95,8 @@ runtime:
         - xsl
         - imagick
         - redis
+        - apcu
+        - msgpack
         - readline
         - name: 'blackfire'
           configuration:

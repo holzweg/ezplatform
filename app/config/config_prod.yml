@@ -2,9 +2,14 @@ imports:
     - { resource: config.yml }
     - { resource: ezplatform_prod.yml }
 
+# If you are on platform.sh/docker or similar where app/cache is not writable during  runtime
+# Enabling apc(u) caching might be the answer.
+
 #framework:
 #    validation:
-#        cache: apc
+#        cache: validator.mapping.cache.doctrine.apc
+#    serializer:
+#        cache: serializer.mapping.cache.apc
 
 #doctrine:
 #    orm:
