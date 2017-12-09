@@ -1,5 +1,8 @@
 <?php
 
+use Symfony\Component\Config\FileLocator;
+use Symfony\Component\DependencyInjection\Loader;
+
 $relationships = getenv('PLATFORM_RELATIONSHIPS');
 if (!$relationships) {
     return;
@@ -24,7 +27,7 @@ foreach ($relationships['database'] as $endpoint) {
     $container->setParameter('cluster_database_name', 'cluster');
 }
 
-// By default set env CUSTOM_CACHE_POOL=singleredis for env/generic.php to set pool
+// Set env CUSTOM_CACHE_POOL to for instance singleredis/singlememcached for env/generic.php to set pool
 if (isset($relationships['cache'])) {
     foreach ($relationships['cache'] as $endpoint) {
         if ($endpoint['scheme'] !== 'memcached') {
@@ -48,5 +51,7 @@ if (isset($relationships['cache'])) {
 // Disable PHPStormPass
 $container->setParameter('ezdesign.phpstorm.enabled', false);
 
-// Store session into /tmp.
-ini_set('session.save_path', '/tmp/sessions');
+// Load platform.sh specifc settings
+
+$loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__));
+$loader->load('platformsh.yml');

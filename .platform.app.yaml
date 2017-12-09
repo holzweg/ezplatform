@@ -19,13 +19,17 @@ build:
 # side is in the form `<service name>:<endpoint name>`.
 relationships:
     database: "mysqldb:mysql"
+    # both env/platform.sh and env/platform.yml will need to be changed if this one is changed
     redis: "rediscache:redis"
+    sessionstorage: "rediscache:redis"
     #solr: "solr:endpoint0"
 
 
 variables:
     php:
         "display_errors": "Off"
+        session.save_handler: redis
+        session.save_path: "tcp://sessionstorage.internal:6379"
     env:
         # Enable a redis pool. this will be used in app/config/env/genric.php, and params will be set in env/platformsh.php
         CUSTOM_CACHE_POOL: 'singleredis'
@@ -48,9 +52,8 @@ disk: 2048
 
 # The mounts that will be performed when the package is deployed.
 mounts:
-    # By default we try to avoid sharing cache folder as it introduces issues (the need to clear it on deploy, & performance)
-    # To accomplish this cache like Doctrine ORM cache needs to be stored into APC(u) instead of on disk (see config_prod.yml)
-    #"/app/cache": "shared:files/cache"
+    # If made available in the future, cache folder will rather be configured as local writable mount
+    "/app/cache": "shared:files/cache"
     "/app/logs": "shared:files/logs"
     "/web/var": "shared:files/files"
 
@@ -68,7 +71,6 @@ hooks:
         else
             composer install --no-dev --prefer-dist --no-progress --no-interaction --optimize-autoloader
         fi
-         app/console --env=$SYMFONY_ENV cache:warmup
     deploy: |
         set -e
         . ./.env
@@ -79,6 +81,8 @@ hooks:
             php -d memory_limit=-1 app/console ezplatform:install --env=$SYMFONY_ENV $INSTALL_EZ_INSTALL_TYPE
             touch web/var/.platform.installed
         fi
+        # As we are deploying code changes we need to clear any kind of code/system cache
+        app/console --env=$SYMFONY_ENV cache:clear
         # If this is not a "fast-deploy" then typically you would want to migrate your data as well here
         #app/console --env=$SYMFONY_ENV doctrine:migrations:migrate --no-interaction --allow-no-migration
         #app/console --env=$SYMFONY_ENV kaliop:migration:migrate --no-interaction --no-debug
@@ -98,7 +102,7 @@ runtime:
         - apcu
         - msgpack
         - readline
-        - name: 'blackfire'
-          configuration:
-              server_id: 'xxxx-xxx-xxx-xxx-xxxx'
-              server_token: 'xxxx'
+        #- name: 'blackfire'
+        #  configuration:
+        #      server_id: 'xxxx-xxx-xxx-xxx-xxxx'
+        #      server_token: 'xxxx'
