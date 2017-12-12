@@ -51,7 +51,6 @@ if (isset($relationships['cache'])) {
 // Disable PHPStormPass
 $container->setParameter('ezdesign.phpstorm.enabled', false);
 
-// Load platform.sh specifc settings
-
+// Load Platform.sh specific settings
 $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__));
 $loader->load('platformsh.yml');
