@@ -21,7 +21,8 @@ relationships:
     database: "mysqldb:mysql"
     # both env/platform.sh and env/platform.yml will need to be changed if this one is changed
     redis: "rediscache:redis"
-    sessionstorage: "rediscache:redis"
+    # Set in php variables below
+    sessionstorage: "redisdata:redis"
     #solr: "solr:endpoint0"
 
 
@@ -31,8 +32,6 @@ variables:
         session.save_handler: redis
         session.save_path: "tcp://sessionstorage.internal:6379"
     env:
-        # Enable a redis pool. this will be used in app/config/env/genric.php, and params will be set in env/platformsh.php
-        CUSTOM_CACHE_POOL: 'singleredis'
         # Symfony cache is not meant to be shared in a cluster and recommendation is to rather use Fastly with platform.sh
         SYMFONY_HTTP_CACHE: 0
 
